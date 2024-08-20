@@ -1,0 +1,23 @@
+FROM golang:1.18-alpine AS builder
+
+WORKDIR /app
+
+# Copy the entire source code, including go.mod and go.sum
+COPY . .
+
+# Download the Go module dependencies
+RUN go mod download
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -o reporting /app/cmd/reporting
+
+FROM alpine:3.18
+
+WORKDIR /root/
+
+COPY --from=builder /app/reporting .
+
+EXPOSE 8081
+
+CMD ["./reporting"]
+

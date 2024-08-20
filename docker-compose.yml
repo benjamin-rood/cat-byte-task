@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
 
   rabbitmq:
@@ -18,3 +16,30 @@ services:
     ports:
       - 6379:6379
     restart: always
+
+  api:
+      build:
+        context: .
+        dockerfile: Dockerfile.api
+      ports:
+        - "8080:8080"
+      depends_on:
+        - rabbitmq
+        - redis
+
+  processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.processor
+    depends_on:
+      - rabbitmq
+      - redis
+
+  reporting:
+    build:
+      context: .
+      dockerfile: Dockerfile.reporting
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
